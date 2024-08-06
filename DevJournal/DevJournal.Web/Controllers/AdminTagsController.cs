@@ -1,6 +1,7 @@
 ﻿using DevJournal.Web.Data;
 using DevJournal.Web.Models.Domain;
 using DevJournal.Web.Models.ViewModels;
+using DevJournal.Web.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
@@ -9,11 +10,11 @@ namespace DevJournal.Web.Controllers
 {
     public class AdminTagsController : Controller
     {
-        private readonly DevjournalDbContext devjournalDbContext;
+        private readonly ITagRepository tagRepository;
 
-        public AdminTagsController(DevjournalDbContext devjournalDbContext)
+        public AdminTagsController(ITagRepository tagRepository)
         {
-            this.devjournalDbContext = devjournalDbContext;
+            this.tagRepository = tagRepository;
         }
 
         [HttpGet]
@@ -33,12 +34,7 @@ namespace DevJournal.Web.Controllers
                 DisplayName = addTagRequest.DisplayName
             };
 
-            // Non Asynchronous call
-            //devjournalDbContext.Tags.Add(tag);
-            //devjournalDbContext.SaveChanges();
-
-            await devjournalDbContext.Tags.AddAsync(tag);
-            await devjournalDbContext.SaveChangesAsync();
+            await tagRepository.AddAsync(tag);
 
             return RedirectToAction("List");
         }
@@ -49,20 +45,15 @@ namespace DevJournal.Web.Controllers
         {
 
             // Use the dbContext to read the tags
-            var tags = await devjournalDbContext.Tags.ToListAsync();
+            var tags = await tagRepository.GetAllAsync();
 
-            return View(tags); 
-        
+            return View(tags);        
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            // 1st method
-            // var tag = devjournalDbContext.Tags.Find(id);
-
-            // 2nd method
-            var tag = await devjournalDbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+            var tag = await tagRepository.GetAsync(id);
 
             if (tag != null)
             {
@@ -89,20 +80,16 @@ namespace DevJournal.Web.Controllers
                 DisplayName = editTagRequest.DisplayName
             };
 
-            var existingTag = await devjournalDbContext.Tags.FindAsync(tag.Id);
+            var updatedTag = await tagRepository.UpdateAsync(tag);
 
-            if (existingTag != null)
+            if (updatedTag != null)
             {
-                existingTag.Name = tag.Name;
-                existingTag.DisplayName = tag.DisplayName;
-
-                // Save the changes
-                devjournalDbContext.SaveChanges();
-
                 // Show success notification
-                return RedirectToAction("Edit", new { id = editTagRequest.Id });
             }
-
+            else
+            {
+                // Show error notification
+            }
 
             // Show error notification
             return RedirectToAction("Edit", new { id = editTagRequest.Id });
@@ -111,14 +98,11 @@ namespace DevJournal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(EditTagRequest editTagRequest)
         {
-            var tag = await devjournalDbContext.Tags.FindAsync(editTagRequest.Id);
+            var deletedTag = await tagRepository.DeleteAsync(editTagRequest.Id);
 
-            if (tag != null)
+            if (deletedTag != null)
             {
-                devjournalDbContext.Tags.Remove(tag);
-                await devjournalDbContext.SaveChangesAsync();
-
-                // Show success notification
+                // Show success notification.
                 return RedirectToAction("List");
             }
 
