@@ -5,7 +5,7 @@ namespace DevJournal.Web.Data
 {
     public class DevjournalDbContext : DbContext
     {
-        public DevjournalDbContext(DbContextOptions options) : base(options)
+        public DevjournalDbContext(DbContextOptions<DevjournalDbContext> options) : base(options)
         {
 
         }
