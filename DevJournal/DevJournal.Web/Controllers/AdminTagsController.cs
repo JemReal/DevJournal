@@ -2,12 +2,14 @@
 using DevJournal.Web.Models.Domain;
 using DevJournal.Web.Models.ViewModels;
 using DevJournal.Web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 
 namespace DevJournal.Web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminTagsController : Controller
     {
         private readonly ITagRepository tagRepository;
