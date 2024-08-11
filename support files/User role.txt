@@ -1,0 +1,14 @@
+User role:
+
+user1@bloggie.com
+User1@123
+
+Admin role:
+superadmin@bloggie.com
+SuperAdmin@123
+
+126769.16
+128463.93
+23710.29
+
+

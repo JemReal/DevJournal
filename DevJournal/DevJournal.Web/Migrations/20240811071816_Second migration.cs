@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DevJournal.Web.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Secondmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,6 +45,25 @@ namespace DevJournal.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BlogPostLike",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BlogPostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlogPostLike", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BlogPostLike_BlogPosts_BlogPostId",
+                        column: x => x.BlogPostId,
+                        principalTable: "BlogPosts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BlogPostTag",
                 columns: table => new
                 {
@@ -69,6 +88,11 @@ namespace DevJournal.Web.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BlogPostLike_BlogPostId",
+                table: "BlogPostLike",
+                column: "BlogPostId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BlogPostTag_TagsId",
                 table: "BlogPostTag",
                 column: "TagsId");
@@ -77,6 +101,9 @@ namespace DevJournal.Web.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "BlogPostLike");
+
             migrationBuilder.DropTable(
                 name: "BlogPostTag");
 
